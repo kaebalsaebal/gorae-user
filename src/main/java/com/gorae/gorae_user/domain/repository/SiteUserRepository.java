@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 public interface SiteUserRepository extends JpaRepository<SiteUser, Long> {
     SiteUser findByUserId(String userId);
     SiteUser findByUserIdAndDeleted(String userId, Boolean deleted);
+    SiteUser findByUserName(String userName);
 }

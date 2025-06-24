@@ -21,23 +21,26 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public String uploadFile(MultipartFile file, String fileName) throws IOException{
-        if(fileName.isBlank()){
-            fileName = "profiles/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
+    public String uploadFile(MultipartFile file, String fileUrl) throws IOException{
+        if(fileUrl.isBlank()){
+            fileUrl = "profiles/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
         }
-        System.out.println(fileName);
+        else{
+            fileUrl = fileUrl.replace("https://" + bucket + ".s3.amazonaws.com/","");
+        }
+        System.out.println(fileUrl);
 
         System.out.println(bucket);
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
-                .key(fileName)
+                .key(fileUrl)
                 .contentType(file.getContentType())
                 .build();
 
         s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
 
 
-        return "https://" + bucket + ".s3.amazonaws.com/" + fileName;
+        return "https://" + bucket + ".s3.amazonaws.com/" + fileUrl;
     }
 }

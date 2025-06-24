@@ -1,6 +1,7 @@
 package com.gorae.gorae_user.service;
 
 import com.gorae.gorae_user.common.aws.S3Service;
+import com.gorae.gorae_user.common.exception.AlreadyExists;
 import com.gorae.gorae_user.common.exception.BadParameter;
 import com.gorae.gorae_user.common.exception.NotFound;
 import com.gorae.gorae_user.domain.dto.*;
@@ -42,7 +43,12 @@ public class SiteUserService {
         try{
             profileUrl = s3Service.uploadFile(profileImage, "");
         } catch(IOException e){
-            System.out.println("tosso");
+
+        }
+
+        SiteUser user2 = siteUserRepository.findByUserName(registerDto.getUserName());
+        if (user2 != null) {
+            throw new AlreadyExists("동일한 닉네임의 사용자가 이미 있어");
         }
 
         //저장-dto에 있는 엔티티화 메쏘드 사용
@@ -74,7 +80,7 @@ public class SiteUserService {
             throw new NotFound("다시 로그인해");
         }
         if (user.getDeleted()){
-            throw new BadParameter("존재하지 않는 사용자");
+            throw new NotFound("존재하지 않는 사용자");
         }
         //비밀번호 체크
         if( !SecureHashUtils.matches(loginDto.getPassword(), user.getPassword())){throw new BadParameter("다시 로그인해");
@@ -89,7 +95,7 @@ public class SiteUserService {
         SiteUser user = siteUserRepository.findByUserIdAndDeleted(userId, false);
 
         if (user != null){
-            throw new NotFound("동일한 아이디의 유저있어");
+            throw new AlreadyExists("동일한 아이디의 유저있어");
         }
     }
 
@@ -98,7 +104,11 @@ public class SiteUserService {
     public void updateUserInfo(SiteUserUpdateDto updateDto, MultipartFile profileImage){
         SiteUser user = siteUserRepository.findByUserId(updateDto.getUserId());
         if (user == null) {
-            throw new NotFound("다시 로그인해");
+            throw new NotFound("로그인 정보가 없어");
+        }
+        SiteUser user2 = siteUserRepository.findByUserName(updateDto.getUserName());
+        if (user2 != null) {
+            throw new AlreadyExists("동일한 닉네임의 사용자가 이미 있어");
         }
 
         //프로파일 이미지 교체
