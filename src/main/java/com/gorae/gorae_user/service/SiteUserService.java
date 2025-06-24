@@ -7,6 +7,7 @@ import com.gorae.gorae_user.domain.dto.*;
 import com.gorae.gorae_user.domain.entity.SiteUser;
 import com.gorae.gorae_user.domain.repository.SiteUserRepository;
 import com.gorae.gorae_user.kafka.producer.KafkaMessageProducer;
+import com.gorae.gorae_user.kafka.producer.leaderboard.dto.UserLeaderBoardEvent;
 import com.gorae.gorae_user.kafka.producer.notification.dto.ChangeUserNotificationEvent;
 import com.gorae.gorae_user.kafka.producer.notification.dto.UserNotificationEvent;
 import com.gorae.gorae_user.kafka.producer.post.dto.ChangeUserInfoEvent;
@@ -35,10 +36,11 @@ public class SiteUserService {
     //회원가입
     @Transactional
     public void registerUser(SiteUserRegisterDto registerDto, MultipartFile profileImage){
+
         //프로파일 이미지부터 s3에 저장
         String profileUrl = "";
         try{
-            profileUrl = s3Service.uploadFile(profileImage);
+            profileUrl = s3Service.uploadFile(profileImage, "");
         } catch(IOException e){
             System.out.println("tosso");
         }
@@ -49,12 +51,15 @@ public class SiteUserService {
         siteUser.setUserProfile(profileUrl);
         siteUserRepository.save(siteUser);
 
-        //알림에 캎카 퍼블리쉬(topic: user, action: CreateUser)
+        //알림에 캎카 퍼블리쉬(topic: user-notification)
         UserNotificationEvent alimEvent = UserNotificationEvent.fromEntity(siteUser);
         kafkaMessageProducer.send(UserNotificationEvent.Topic, alimEvent);
         //포스트에 캎카 퍼블리쉬(topic: user-info)
         UserInfoEvent postEvent = UserInfoEvent.fromEntity(siteUser);
         kafkaMessageProducer.send(UserInfoEvent.Topic, postEvent);
+        //리더보드에 캎카 퍼블리쉬
+        UserLeaderBoardEvent leaderBoardEvent = UserLeaderBoardEvent.fromEntity("register-user", siteUser);
+        kafkaMessageProducer.send(UserLeaderBoardEvent.Topic, leaderBoardEvent);
 
     }
 
@@ -62,6 +67,8 @@ public class SiteUserService {
     @Transactional(readOnly=true)
     public TokenDto.AccessRefreshToken login(SiteUserLoginDto loginDto) {
         //찾기
+        System.out.println(loginDto.getUserId());
+        System.out.println(loginDto.getPassword());
         SiteUser user = siteUserRepository.findByUserId(loginDto.getUserId());
         if (user == null) {
             throw new NotFound("다시 로그인해");
@@ -95,9 +102,9 @@ public class SiteUserService {
         }
 
         //프로파일 이미지 교체
-        String profileUrl = "";
+        String profileUrl = user.getUserProfile();
         try{
-            profileUrl = s3Service.uploadFile(profileImage);
+            profileUrl = s3Service.uploadFile(profileImage, profileUrl);
         } catch(IOException e){
 
         }
@@ -108,12 +115,15 @@ public class SiteUserService {
         user.setEmail(updateDto.getEmail());
         user.setUserProfile(profileUrl);
 
-        //알림에 캎카 퍼블리쉬(topic: user, action: ChangeUserInfo)
+        //알림에 캎카 퍼블리쉬(topic: user-notification-change, action: ChangeUserInfo)
         ChangeUserNotificationEvent alimEvent = ChangeUserNotificationEvent.fromEntity(user);
         kafkaMessageProducer.send(UserNotificationEvent.Topic, alimEvent);
-        //포스트에 캎카 퍼블리쉬(topic: user-info, action: ChangeUserInfo)
+        //포스트에 캎카 퍼블리쉬(topic: change-user-info, action: ChangeUserInfo)
         ChangeUserInfoEvent postEvent = ChangeUserInfoEvent.fromEntity(user);
         kafkaMessageProducer.send(ChangeUserInfoEvent.Topic, postEvent);
+        //리더보드에 캎카 퍼블리쉬
+        UserLeaderBoardEvent leaderBoardEvent = UserLeaderBoardEvent.fromEntity("change-user", user);
+        kafkaMessageProducer.send(UserLeaderBoardEvent.Topic, leaderBoardEvent);
     }
 
     //비번갱신

@@ -20,7 +20,7 @@ public class UserAuthController {
     private final SiteUserService siteUserService;
 
     @PostMapping(value = "/register")
-    public ApiResponseDto<String> register(@RequestPart(value = "registerDto") @Valid SiteUserRegisterDto registerDto,
+    public ApiResponseDto<String> register(@RequestPart(value = "registerData") @Valid SiteUserRegisterDto registerDto,
                                            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage){
         siteUserService.registerUser(registerDto, profileImage);
         return ApiResponseDto.defaultOk();

@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class UserNotificationEvent {
-    public static final String Topic = "notification-user";
+    public static final String Topic = "user-notification";
 
     private String userId;
 

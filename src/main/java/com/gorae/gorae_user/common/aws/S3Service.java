@@ -21,8 +21,10 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public String uploadFile(MultipartFile file) throws IOException{
-        String fileName = "profiles/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
+    public String uploadFile(MultipartFile file, String fileName) throws IOException{
+        if(fileName.isBlank()){
+            fileName = "profiles/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
+        }
         System.out.println(fileName);
 
         System.out.println(bucket);

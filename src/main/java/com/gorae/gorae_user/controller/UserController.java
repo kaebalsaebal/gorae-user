@@ -2,6 +2,7 @@ package com.gorae.gorae_user.controller;
 
 import com.gorae.gorae_user.common.dto.ApiResponseDto;
 import com.gorae.gorae_user.domain.dto.SiteUserPasswordDto;
+import com.gorae.gorae_user.domain.dto.SiteUserRemoveDto;
 import com.gorae.gorae_user.domain.dto.SiteUserUpdateDto;
 import com.gorae.gorae_user.service.SiteUserService;
 import jakarta.validation.Valid;
@@ -19,8 +20,8 @@ public class UserController {
     private final SiteUserService siteUserService;
 
     @PostMapping(value = "/update")
-    public ApiResponseDto<String> updateUserInfo(@RequestBody @Valid SiteUserUpdateDto updateDto,
-                                                 @RequestParam(value = "profileImage", required = false) MultipartFile profileImage){
+    public ApiResponseDto<String> updateUserInfo(@RequestPart(value = "updateData") @Valid SiteUserUpdateDto updateDto,
+                                                 @RequestPart(value = "profileImage", required = false) MultipartFile profileImage){
         siteUserService.updateUserInfo(updateDto, profileImage);
         return ApiResponseDto.defaultOk();
     }
@@ -28,6 +29,12 @@ public class UserController {
     @PostMapping(value = "/password")
     public ApiResponseDto<String> updatePassword(@RequestBody @Valid SiteUserPasswordDto passwordDto){
         siteUserService.updatePassword(passwordDto);
+        return ApiResponseDto.defaultOk();
+    }
+
+    @PostMapping(value = "/remove")
+    public ApiResponseDto<String> removeUser(@RequestBody @Valid SiteUserRemoveDto removeDto){
+        siteUserService.removeUser(removeDto);
         return ApiResponseDto.defaultOk();
     }
 }
