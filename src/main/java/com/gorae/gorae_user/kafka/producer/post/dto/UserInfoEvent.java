@@ -15,14 +15,14 @@ public class UserInfoEvent {
 
     private String userName;
 
-    private String userImageUrl;
+    private String profileImgUrl;
 
     public static UserInfoEvent fromEntity(SiteUser siteUser){
         UserInfoEvent event = new UserInfoEvent();
 
         event.userId = siteUser.getUserId();
         event.userName = siteUser.getUserName();
-        event.userImageUrl = siteUser.getUserProfile();
+        event.profileImgUrl = siteUser.getUserProfile();
 
         return event;
     }
