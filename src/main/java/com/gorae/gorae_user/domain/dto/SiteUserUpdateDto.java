@@ -9,6 +9,8 @@ import lombok.Setter;
 public class SiteUserUpdateDto {
     @NotBlank(message = "아이디입력")
     private String userId;
+    @NotBlank(message = "아이디입력")
+    private String userName;
     @NotBlank(message = "전번입력")
     private String phoneNumber;
     @NotBlank(message = "이메일입력")

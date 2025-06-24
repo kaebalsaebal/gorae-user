@@ -1,12 +1,16 @@
 package com.gorae.gorae_user.service;
 
+import com.gorae.gorae_user.common.aws.S3Service;
 import com.gorae.gorae_user.common.exception.BadParameter;
 import com.gorae.gorae_user.common.exception.NotFound;
 import com.gorae.gorae_user.domain.dto.*;
 import com.gorae.gorae_user.domain.entity.SiteUser;
-import com.gorae.gorae_user.domain.event.SiteUserInfoEvent;
 import com.gorae.gorae_user.domain.repository.SiteUserRepository;
-import com.gorae.gorae_user.event.producer.KafkaMessageProducer;
+import com.gorae.gorae_user.kafka.producer.KafkaMessageProducer;
+import com.gorae.gorae_user.kafka.producer.notification.dto.ChangeUserNotificationEvent;
+import com.gorae.gorae_user.kafka.producer.notification.dto.UserNotificationEvent;
+import com.gorae.gorae_user.kafka.producer.post.dto.ChangeUserInfoEvent;
+import com.gorae.gorae_user.kafka.producer.post.dto.UserInfoEvent;
 import com.gorae.gorae_user.secret.hash.SecureHashUtils;
 import com.gorae.gorae_user.secret.jwt.TokenGenerator;
 import com.gorae.gorae_user.secret.jwt.dto.TokenDto;
@@ -14,6 +18,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Slf4j
 @Service
@@ -23,17 +30,32 @@ public class SiteUserService {
     private final SiteUserRepository siteUserRepository;
     private final KafkaMessageProducer kafkaMessageProducer;
     private final TokenGenerator tokenGenerator;
+    private final S3Service s3Service;
 
     //회원가입
     @Transactional
-    public void registerUser(SiteUserRegisterDto registerDto){
+    public void registerUser(SiteUserRegisterDto registerDto, MultipartFile profileImage){
+        //프로파일 이미지부터 s3에 저장
+        String profileUrl = "";
+        try{
+            profileUrl = s3Service.uploadFile(profileImage);
+        } catch(IOException e){
+            System.out.println("tosso");
+        }
+
         //저장-dto에 있는 엔티티화 메쏘드 사용
         SiteUser siteUser = registerDto.toEntity();
+        //포라파일 이미지는 따로 셋터
+        siteUser.setUserProfile(profileUrl);
         siteUserRepository.save(siteUser);
 
-        //캎카 퍼블리쉬
-        SiteUserInfoEvent event = SiteUserInfoEvent.fromEntity("UserCreate", siteUser);
-        kafkaMessageProducer.send(SiteUserInfoEvent.Topic, event);
+        //알림에 캎카 퍼블리쉬(topic: user, action: CreateUser)
+        UserNotificationEvent alimEvent = UserNotificationEvent.fromEntity(siteUser);
+        kafkaMessageProducer.send(UserNotificationEvent.Topic, alimEvent);
+        //포스트에 캎카 퍼블리쉬(topic: user-info)
+        UserInfoEvent postEvent = UserInfoEvent.fromEntity(siteUser);
+        kafkaMessageProducer.send(UserInfoEvent.Topic, postEvent);
+
     }
 
     //로그인
@@ -66,19 +88,32 @@ public class SiteUserService {
 
     //사용자정보 갱신
     @Transactional
-    public void updateUserInfo(SiteUserUpdateDto updateDto){
+    public void updateUserInfo(SiteUserUpdateDto updateDto, MultipartFile profileImage){
         SiteUser user = siteUserRepository.findByUserId(updateDto.getUserId());
         if (user == null) {
             throw new NotFound("다시 로그인해");
         }
+
+        //프로파일 이미지 교체
+        String profileUrl = "";
+        try{
+            profileUrl = s3Service.uploadFile(profileImage);
+        } catch(IOException e){
+
+        }
+
         //없데이트(트랜잭션이라 set만 해도 자동으로~)
+        user.setUserName(updateDto.getUserName());
         user.setPhoneNumber(updateDto.getPhoneNumber());
         user.setEmail(updateDto.getEmail());
-        user.setUserProfile(updateDto.getUserProfile());
+        user.setUserProfile(profileUrl);
 
-        //캎카 퍼블리쉬
-        SiteUserInfoEvent event = SiteUserInfoEvent.fromEntity("UserUpdate", user);
-        kafkaMessageProducer.send(SiteUserInfoEvent.Topic, event);
+        //알림에 캎카 퍼블리쉬(topic: user, action: ChangeUserInfo)
+        ChangeUserNotificationEvent alimEvent = ChangeUserNotificationEvent.fromEntity(user);
+        kafkaMessageProducer.send(UserNotificationEvent.Topic, alimEvent);
+        //포스트에 캎카 퍼블리쉬(topic: user-info, action: ChangeUserInfo)
+        ChangeUserInfoEvent postEvent = ChangeUserInfoEvent.fromEntity(user);
+        kafkaMessageProducer.send(ChangeUserInfoEvent.Topic, postEvent);
     }
 
     //비번갱신

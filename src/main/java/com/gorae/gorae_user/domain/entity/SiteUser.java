@@ -19,6 +19,10 @@ public class SiteUser {
     @Getter @Setter
     private String userId;
 
+    @Column(name = "user_name", nullable = false)
+    @Getter @Setter
+    private String userName;
+
     @Column(name = "password", nullable = false)
     @Getter @Setter
     private String password;

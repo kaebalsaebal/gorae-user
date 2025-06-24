@@ -1,4 +1,4 @@
-package com.gorae.gorae_user.api.open;
+package com.gorae.gorae_user.controller;
 
 import com.gorae.gorae_user.common.dto.ApiResponseDto;
 import com.gorae.gorae_user.domain.dto.SiteUserLoginDto;
@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
@@ -19,8 +20,9 @@ public class UserAuthController {
     private final SiteUserService siteUserService;
 
     @PostMapping(value = "/register")
-    public ApiResponseDto<String> register(@RequestBody @Valid SiteUserRegisterDto registerDto){
-        siteUserService.registerUser(registerDto);
+    public ApiResponseDto<String> register(@RequestPart(value = "registerDto") @Valid SiteUserRegisterDto registerDto,
+                                           @RequestPart(value = "profileImage", required = false) MultipartFile profileImage){
+        siteUserService.registerUser(registerDto, profileImage);
         return ApiResponseDto.defaultOk();
     }
 

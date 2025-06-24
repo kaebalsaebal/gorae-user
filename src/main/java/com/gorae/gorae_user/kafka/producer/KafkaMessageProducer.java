@@ -1,4 +1,4 @@
-package com.gorae.gorae_user.event.producer;
+package com.gorae.gorae_user.kafka.producer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
