@@ -28,9 +28,6 @@ public class S3Service {
         else{
             fileUrl = fileUrl.replace("https://" + bucket + ".s3.amazonaws.com/","");
         }
-        System.out.println(fileUrl);
-
-        System.out.println(bucket);
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
