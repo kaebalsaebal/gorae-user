@@ -2,7 +2,7 @@ version: '3'
 services:
   mysql:
     image: mysql:8.0
-    container_name: mysql-user
+    container_name: gorae-user-db
     restart: always
     ports:
       - "13306:3306"
