@@ -34,7 +34,19 @@ public class SiteUserService {
     private final TokenGenerator tokenGenerator;
     private final S3Service s3Service;
 
-    // 이미지 업로드 메쏘드
+    // 이미지 업로드 메쏘드(회원가입용)
+    @Transactional
+    public String uploadImage(MultipartFile profileImage) {
+        String profileUrl = "";
+        try{
+            profileUrl = s3Service.uploadFile(profileImage, "");
+        } catch(IOException e){
+
+        }
+        return profileUrl;
+    }
+
+    // 이미지 업로드 메쏘드(사용자 정보변경용)
     @Transactional
     public String uploadImage(MultipartFile profileImage, String token) {
         //토큰에서 사용자 추출

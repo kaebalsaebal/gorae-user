@@ -17,14 +17,12 @@ public class ChangeUserNotificationEvent {
 
     private String profileImgUrl;
 
-    private LocalDateTime eventTime;
-
     public static ChangeUserNotificationEvent fromEntity(SiteUser siteUser){
         ChangeUserNotificationEvent event = new ChangeUserNotificationEvent();
 
         event.userId = siteUser.getUserId();
+        event.userName = siteUser.getUserName();
         event.profileImgUrl = siteUser.getUserProfile();
-        event.eventTime = LocalDateTime.now();
 
         return event;
     }

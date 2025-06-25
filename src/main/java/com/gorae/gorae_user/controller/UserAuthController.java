@@ -44,4 +44,11 @@ public class UserAuthController {
         TokenDto.AccessToken token = siteUserService.refresh(refreshDto);
         return ApiResponseDto.createOk(token);
     }
+
+    @PostMapping(value = "/upload")
+    public ApiResponseDto<String> uploadImage(@RequestPart MultipartFile profileImage){
+        String result = siteUserService.uploadImage(profileImage);
+
+        return ApiResponseDto.createOk(result);
+    }
 }
