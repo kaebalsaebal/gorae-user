@@ -34,17 +34,22 @@ public class SiteUserService {
     private final TokenGenerator tokenGenerator;
     private final S3Service s3Service;
 
+    // 이미지 업로드 메쏘드
+    private String upload(MultipartFile profileImage, String profileUrl){
+        try{
+            profileUrl = s3Service.uploadFile(profileImage, profileUrl);
+        } catch(IOException e){
+
+        }
+        return profileUrl;
+    }
+
     //회원가입
     @Transactional
     public void registerUser(SiteUserRegister_IN registerDto, MultipartFile profileImage){
 
         //프로파일 이미지부터 s3에 저장
-        String profileUrl = "";
-        try{
-            profileUrl = s3Service.uploadFile(profileImage, "");
-        } catch(IOException e){
-
-        }
+        String profileUrl = upload(profileImage, "");
 
         SiteUser user2 = siteUserRepository.findByUserName(registerDto.getUserName());
         if (user2 != null) {
@@ -114,12 +119,7 @@ public class SiteUserService {
         }
 
         //프로파일 이미지 교체
-        String profileUrl = user.getUserProfile();
-        try{
-            profileUrl = s3Service.uploadFile(profileImage, profileUrl);
-        } catch(IOException e){
-
-        }
+        String profileUrl = upload(profileImage, user.getUserProfile());
 
         //없데이트(트랜잭션이라 set만 해도 자동으로~)
         user.setUserName(updateDto.getUserName());
