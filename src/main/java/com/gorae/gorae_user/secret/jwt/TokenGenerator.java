@@ -2,6 +2,7 @@ package com.gorae.gorae_user.secret.jwt;
 
 import com.gorae.gorae_user.secret.jwt.dto.TokenDto;
 import com.gorae.gorae_user.secret.jwt.props.JwtConfigProperties;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -9,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 
 @Component
@@ -72,4 +75,37 @@ public class TokenGenerator {
         }
         return configProperties.getExpiresIn();
     }
+
+    private Claims verifyAndGetClaims(String token) {
+        Claims claims;
+        try {
+            claims = Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token).getPayload();
+        } catch (Exception e) {
+            claims = null;
+        }
+        return claims;
+    }
+
+
+    public String validateJwtToken(String token, String action) {
+        String userId = null;
+        final Claims claims = this.verifyAndGetClaims(token);
+        if (claims == null) {
+            return null;
+        }
+        Date expirationDate = claims.getExpiration();
+        if (expirationDate == null || expirationDate.before(new Date())) {
+            return null;
+        }
+        userId = claims.get("userId", String.class);
+        String tokenType = claims.get("tokenType", String.class);
+        if (action == "refresh" && "refresh".equals(tokenType)) {
+            return userId;
+        } else if (action == "access" && "access".equals(tokenType)) {
+            return userId;
+        } else {
+            return null;
+        }
+    }
+
 }

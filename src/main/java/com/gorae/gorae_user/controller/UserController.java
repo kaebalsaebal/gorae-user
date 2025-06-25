@@ -9,6 +9,7 @@ import com.gorae.gorae_user.service.SiteUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.shaded.com.google.protobuf.Api;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,9 +22,8 @@ public class UserController {
     private final SiteUserService siteUserService;
 
     @PostMapping(value = "/update")
-    public ApiResponseDto<SiteUserUpdate_OUT> updateUserInfo(@RequestPart(value = "updateData") @Valid SiteUserUpdate_IN updateDto,
-                                                             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage){
-        SiteUserUpdate_OUT result = siteUserService.updateUserInfo(updateDto, profileImage);
+    public ApiResponseDto<SiteUserUpdate_OUT> updateUserInfo(@RequestBody @Valid SiteUserUpdate_IN updateDto){
+        SiteUserUpdate_OUT result = siteUserService.updateUserInfo(updateDto);
         return ApiResponseDto.createOk(result);
     }
 
@@ -37,5 +37,13 @@ public class UserController {
     public ApiResponseDto<String> removeUser(@RequestBody @Valid SiteUserRemove_IN removeDto){
         siteUserService.removeUser(removeDto);
         return ApiResponseDto.defaultOk();
+    }
+
+    @PostMapping(value = "/upload")
+    public ApiResponseDto<String> uploadImage(@RequestPart MultipartFile profileImage, @RequestHeader("Authorization") String authHeader){
+        String token = authHeader.replace("Bearer ", "");
+        String result = siteUserService.uploadImage(profileImage, token);
+
+        return ApiResponseDto.createOk(result);
     }
 }
