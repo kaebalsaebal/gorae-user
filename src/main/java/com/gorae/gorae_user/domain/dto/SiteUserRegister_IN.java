@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SiteUserRegisterDto {
+public class SiteUserRegister_IN {
     @NotBlank(message = "아이디입력")
     private String userId;
     @NotBlank(message = "이름")

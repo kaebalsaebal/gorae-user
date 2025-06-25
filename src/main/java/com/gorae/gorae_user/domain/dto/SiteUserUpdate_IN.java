@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SiteUserUpdateDto {
+public class SiteUserUpdate_IN {
     @NotBlank(message = "아이디입력")
     private String userId;
     @NotBlank(message = "아이디입력")

@@ -18,7 +18,7 @@ spring:
       validation-timeout: 5000
   jpa:
     hibernate:
-      ddl-auto: create # 오직 테스트 환경에서만
+      ddl-auto: update # 오직 테스트 환경에서만
     generate-ddl: true # 오직 테스트 환경에서만 (spring.jpa.generate-ddl)
     show-sql: true
     open-in-view: false

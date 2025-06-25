@@ -1,8 +1,9 @@
 package com.gorae.gorae_user.controller;
 
 import com.gorae.gorae_user.common.dto.ApiResponseDto;
-import com.gorae.gorae_user.domain.dto.SiteUserLoginDto;
-import com.gorae.gorae_user.domain.dto.SiteUserRegisterDto;
+import com.gorae.gorae_user.domain.dto.SiteUserLogin_IN;
+import com.gorae.gorae_user.domain.dto.SiteUserLogin_OUT;
+import com.gorae.gorae_user.domain.dto.SiteUserRegister_IN;
 import com.gorae.gorae_user.secret.jwt.dto.TokenDto;
 import com.gorae.gorae_user.service.SiteUserService;
 import jakarta.validation.Valid;
@@ -20,16 +21,16 @@ public class UserAuthController {
     private final SiteUserService siteUserService;
 
     @PostMapping(value = "/register")
-    public ApiResponseDto<String> register(@RequestPart(value = "registerData") @Valid SiteUserRegisterDto registerDto,
+    public ApiResponseDto<String> register(@RequestPart(value = "registerData") @Valid SiteUserRegister_IN registerDto,
                                            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage){
         siteUserService.registerUser(registerDto, profileImage);
         return ApiResponseDto.defaultOk();
     }
 
     @PostMapping(value = "/login")
-    public ApiResponseDto<TokenDto.AccessRefreshToken> login(@RequestBody @Valid SiteUserLoginDto loginDto){
-        TokenDto.AccessRefreshToken token = siteUserService.login(loginDto);
-        return ApiResponseDto.createOk(token);
+    public ApiResponseDto<SiteUserLogin_OUT> login(@RequestBody @Valid SiteUserLogin_IN loginDto){
+        SiteUserLogin_OUT userInfo = siteUserService.login(loginDto);
+        return ApiResponseDto.createOk(userInfo);
     }
 
     @GetMapping(value = "/isvalid")

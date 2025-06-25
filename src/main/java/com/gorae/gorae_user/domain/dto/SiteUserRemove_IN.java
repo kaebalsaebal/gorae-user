@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SiteUserRemoveDto {
+public class SiteUserRemove_IN {
     @NotBlank(message="아이디")
     private String userId;
 }

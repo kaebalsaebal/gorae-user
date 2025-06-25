@@ -6,9 +6,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SiteUserLoginDto {
+public class SiteUserPassword_IN {
     @NotBlank(message="아이디")
     private String userId;
-    @NotBlank(message="비번")
-    private String password;
+    @NotBlank(message="옛비번")
+    private String oldPassword;
+    @NotBlank(message="뉴비번")
+    private String newPassword;
 }
