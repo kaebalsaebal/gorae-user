@@ -9,22 +9,19 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class SiteUserLogin_OUT {
+public class SiteUserUpdate_OUT {
     private TokenDto.AccessRefreshToken tokens;
-    private String userId;
     private String userName;
     private String phoneNumber;
     private String email;
     private String userProfile;
 
-    public SiteUserLogin_OUT fromEntity(SiteUser user, TokenDto.AccessRefreshToken token){
-        SiteUserLogin_OUT result = new SiteUserLogin_OUT();
-        result.setUserId(user.getUserId());
+    public SiteUserUpdate_OUT fromEntity(SiteUser user){
+        SiteUserUpdate_OUT result = new SiteUserUpdate_OUT();
         result.setUserName(user.getUserName());
         result.setPhoneNumber(user.getPhoneNumber());
         result.setEmail(user.getEmail());
         result.setUserProfile(user.getUserProfile());
-        result.setTokens(token);
 
         return result;
     }

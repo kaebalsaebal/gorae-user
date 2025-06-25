@@ -4,6 +4,7 @@ import com.gorae.gorae_user.common.dto.ApiResponseDto;
 import com.gorae.gorae_user.domain.dto.SiteUserPassword_IN;
 import com.gorae.gorae_user.domain.dto.SiteUserRemove_IN;
 import com.gorae.gorae_user.domain.dto.SiteUserUpdate_IN;
+import com.gorae.gorae_user.domain.dto.SiteUserUpdate_OUT;
 import com.gorae.gorae_user.service.SiteUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +21,10 @@ public class UserController {
     private final SiteUserService siteUserService;
 
     @PostMapping(value = "/update")
-    public ApiResponseDto<String> updateUserInfo(@RequestPart(value = "updateData") @Valid SiteUserUpdate_IN updateDto,
-                                                 @RequestPart(value = "profileImage", required = false) MultipartFile profileImage){
-        siteUserService.updateUserInfo(updateDto, profileImage);
-        return ApiResponseDto.defaultOk();
+    public ApiResponseDto<SiteUserUpdate_OUT> updateUserInfo(@RequestPart(value = "updateData") @Valid SiteUserUpdate_IN updateDto,
+                                                             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage){
+        SiteUserUpdate_OUT result = siteUserService.updateUserInfo(updateDto, profileImage);
+        return ApiResponseDto.createOk(result);
     }
 
     @PostMapping(value = "/password")

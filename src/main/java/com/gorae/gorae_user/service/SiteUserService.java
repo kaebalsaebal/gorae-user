@@ -103,7 +103,7 @@ public class SiteUserService {
 
     //사용자정보 갱신
     @Transactional
-    public void updateUserInfo(SiteUserUpdate_IN updateDto, MultipartFile profileImage){
+    public SiteUserUpdate_OUT updateUserInfo(SiteUserUpdate_IN updateDto, MultipartFile profileImage){
         SiteUser user = siteUserRepository.findByUserId(updateDto.getUserId());
         if (user == null) {
             throw new NotFound("로그인 정보가 없어");
@@ -136,6 +136,10 @@ public class SiteUserService {
         //리더보드에 캎카 퍼블리쉬
         UserLeaderBoardEvent leaderBoardEvent = UserLeaderBoardEvent.fromEntity("change-user", user);
         kafkaMessageProducer.send(UserLeaderBoardEvent.Topic, leaderBoardEvent);
+
+        SiteUserUpdate_OUT result = new SiteUserUpdate_OUT();
+        result.fromEntity(user);
+        return result;
     }
 
     //비번갱신
