@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class SiteUserLogin_OUT {
-    private TokenDto.AccessRefreshToken token;
+    private TokenDto.AccessRefreshToken tokens;
     private String userId;
     private String userName;
     private String userProfile;
@@ -20,7 +20,7 @@ public class SiteUserLogin_OUT {
         result.setUserId(user.getUserId());
         result.setUserName(user.getUserName());
         result.setUserProfile(user.getUserProfile());
-        result.setToken(token);
+        result.setTokens(token);
 
         return result;
     }
