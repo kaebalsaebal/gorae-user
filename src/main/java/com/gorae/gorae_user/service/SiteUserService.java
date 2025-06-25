@@ -87,7 +87,7 @@ public class SiteUserService {
         UserInfoEvent postEvent = UserInfoEvent.fromEntity(siteUser);
         kafkaMessageProducer.send(UserInfoEvent.Topic, postEvent);
         //리더보드에 캎카 퍼블리쉬
-        UserLeaderBoardEvent leaderBoardEvent = UserLeaderBoardEvent.fromEntity("register-user", siteUser);
+        UserLeaderBoardEvent leaderBoardEvent = UserLeaderBoardEvent.fromEntity("register", siteUser);
         kafkaMessageProducer.send(UserLeaderBoardEvent.Topic, leaderBoardEvent);
 
     }
@@ -165,7 +165,7 @@ public class SiteUserService {
         ChangeUserInfoEvent postEvent = ChangeUserInfoEvent.fromEntity(user);
         kafkaMessageProducer.send(ChangeUserInfoEvent.Topic, postEvent);
         //리더보드에 캎카 퍼블리쉬
-        UserLeaderBoardEvent leaderBoardEvent = UserLeaderBoardEvent.fromEntity("change-user", user);
+        UserLeaderBoardEvent leaderBoardEvent = UserLeaderBoardEvent.fromEntity("change", user);
         kafkaMessageProducer.send(UserLeaderBoardEvent.Topic, leaderBoardEvent);
 
         SiteUserUpdate_OUT result = new SiteUserUpdate_OUT();

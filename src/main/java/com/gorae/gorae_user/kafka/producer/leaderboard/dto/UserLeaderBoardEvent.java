@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class UserLeaderBoardEvent {
-    public static final String Topic = "user";
+    public static final String Topic = "user-leaderboard";
 
     private String action;
 
@@ -20,18 +20,13 @@ public class UserLeaderBoardEvent {
 
     private String profileImgUrl;
 
-    private String userBadge;
-
-    private LocalDateTime eventTime;
-
     public static UserLeaderBoardEvent fromEntity(String action, SiteUser siteUser){
         UserLeaderBoardEvent event = new UserLeaderBoardEvent();
 
         event.action = action;
         event.userId = siteUser.getUserId();
+        event.userName = siteUser.getUserName();
         event.profileImgUrl = siteUser.getUserProfile();
-        event.userBadge = "빈데이타";
-        event.eventTime = LocalDateTime.now();
 
         return event;
     }
